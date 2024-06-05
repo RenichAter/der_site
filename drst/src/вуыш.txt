@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(6),
     marginTop: theme.spacing(8),
   },
-  ButtonCreatePosition: {
+  footerPosition: {
     padding: theme.spacing(3),
   },
   CreateButton: {
@@ -206,7 +206,7 @@ function App() {
             </Grid>
           </Container>
         </Paper>
-        <div align="center" className={classes.ButtonCreatePosition}>
+        <div align="center">
           <Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>
             Добавить мероприятие
           </Button>
@@ -238,6 +238,23 @@ function App() {
             </DialogActions>
           </Dialog>
         </div>
+        <footer className={classes.footerPosition}>
+          <Typography variant="h5" align="center" color="textPrimary" gutterBottom>
+            Навигация
+          </Typography>
+          <BottomNavigation value={value} onChange={handleChangeNav} className={classes.root}>
+            <BottomNavigationAction style={{ color: "#FF0A0A" }}
+              label="Ближайшие"
+              value="immediate"
+              icon={<AccessTimeIcon />}
+            />
+            <BottomNavigationAction style={{ color: "#FF0A0A" }}
+              label="Новодобавленные"
+              value="new"
+              icon={<FiberNewIcon />}
+            />
+          </BottomNavigation>
+        </footer>
         <Container className={classes.cardGrid} maxWidth="md">
           <Grid container spacing={4}>
             {cards.map((card) => (
