@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import React, { Component, useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import {
   AppBar,
@@ -12,19 +11,14 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActions,
   TextField,
   Dialog,
   DialogActions,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  BottomNavigation,
-  BottomNavigationAction,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import FiberNewIcon from '@material-ui/icons/FiberNew';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 
@@ -73,22 +67,30 @@ const useStyles = makeStyles((theme) => ({
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+
+
 function App() {
+  const [events, setEvents] = useState([]);
   const classes = useStyles();
-  const [value, setValue] = useState("immediate");
   const [open, setOpen] = useState(false);
   const [openReg, setOpenReg] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [formData, setFormData] = useState({
-    nameEvent: '',
-    descriptionEvent: '',
-    placeEvent: '',
-    dateEvent: '',
+    name: '',
+    description: '',
+    date: '',
+    location: '',
   });
 
-  const handleChangeNav = (event, newValue) => {
-    setValue(newValue);
-  }
+  const getApiData = async () => {
+    const response = await fetch(
+      "https://localhost:5000/api/Events"
+    ).then((response) => response.json());
+    setEvents(response);
+  };
+  useEffect(() => {
+    getApiData();
+  }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -119,7 +121,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://localhost:5000/api/Events', formData);
+      const response = await axios.put('https://localhost:5000/api/Events', formData);
       console.log('Server Response:', response.data);
       handleClose();
     } catch (error) {
@@ -129,6 +131,7 @@ function App() {
 
   return (
     <>
+
       <AppBar position="fixed" style={{ backgroundColor: "#FF0A0A" }}>
         <Container fixed>
           <Toolbar>
@@ -218,15 +221,10 @@ function App() {
               <DialogContentText>
                 Введите все данные о вашем мероприятии
               </DialogContentText>
-              <TextField autoFocus variant="outlined" margin="dense" id="nameEvent" label="Введите название" color="primary" type="text" fullWidth value={formData.nameEvent} onChange={handleChange} />
-              <TextField variant="outlined" multiline margin="dense" id="descriptionEvent" label="Введите описание" color="primary" type="text" fullWidth value={formData.descriptionEvent} onChange={handleChange} />
-              <TextField variant="outlined" margin="dense" id="placeEvent" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.placeEvent} onChange={handleChange} />
-              <TextField variant="outlined" margin="dense" id="dateEvent" label="Введите дату в формате дд/мм/гггг" color="primary" type="text" fullWidth value={formData.dateEvent} onChange={handleChange} />
-              <Typography align="left" color="textPrimary">Добавьте изображение(я)</Typography>
-              <Button variant="outlined" component="label" className={classes.CreateButton}>
-                <input accept="image/*" id="raised-button-file" multiple type="file" style={{ display: 'none' }} />
-                Выберите файлы
-              </Button>
+              <TextField autoFocus variant="outlined" margin="dense" id="name" label="Введите название" color="primary" type="text" fullWidth value={formData.name} onChange={handleChange} />
+              <TextField variant="outlined" multiline margin="dense" id="description" label="Введите описание" color="primary" type="text" fullWidth value={formData.description} onChange={handleChange} />
+              <TextField variant="outlined" margin="dense" id="location" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.location} onChange={handleChange} />
+              <TextField variant="outlined" margin="dense" id="date" label="Введите дату в формате дд/мм/гггг" color="primary" type="text" fullWidth value={formData.date} onChange={handleChange} />
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose} className={classes.allColor}>
@@ -240,20 +238,20 @@ function App() {
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
           <Grid container spacing={4}>
-            {cards.map((card) => (
+            {events.map((card) => (
               <Grid item key={card} xs={12} sm={12} md={12}>
                 <Card className={classes.card}>
                   <CardMedia className={classes.cardMedia} image="https://img2.fonwall.ru/o/as/oktyabr-v-caricyno-osen-caricyno-muzey-zapovednik-iikd.jpg?auto=compress&fit=resize&w=1200&display=large&nsfw=false" />
                   <CardContent className={classes.cardContent}>
                     <Typography variant="h4" gutterBottom>
-                      Тестовое Имя
+                    {card.name}
                     </Typography>
                     <Typography variant="h5" gutterBottom>
-                      Тестовое описание
+                      {card.description}
                     </Typography>
                     <div className={classes.cardPlaceTime}>
-                      <Typography>Ул.Тестова, дом 46</Typography>
-                      <Typography>20.07.2024</Typography>
+                      <Typography>{card.location}</Typography>
+                      <Typography>{card.date}</Typography>
                     </div>
                   </CardContent>
                 </Card>
