@@ -178,7 +178,7 @@ function App() {
         localStorage.setItem('userName', formDataUser.userNick);
         handleClose();
       } catch (error) {
-        setErrorFill(true);
+        setErrorReg(true);
         console.error('Error submitting data:', error);
       }
     }
@@ -287,11 +287,7 @@ function App() {
           </Container>
         </Paper>
         <div align="center" className={classes.ButtonCreatePosition}>
-          {loginIn ? (
-            <Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>
-              Добавить мероприятие
-            </Button>
-          ) : (
+          {loginIn ? (<Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>Добавить мероприятие</Button>) : (
             <Typography  variant="h6">Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
           )}
           <Dialog open={openAdd} onClose={handleClose} aria-labelledby="form-dialog-title">
