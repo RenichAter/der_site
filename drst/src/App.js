@@ -312,7 +312,7 @@ function App() {
               <TextField autoFocus variant="outlined" margin="dense" id="name" label="Введите название" color="primary" type="text" fullWidth value={formData.name} onChange={handleChange} />
               <TextField variant="outlined" multiline margin="dense" id="description" label="Введите описание" color="primary" type="text" fullWidth value={formData.description} onChange={handleChange} />
               <TextField variant="outlined" margin="dense" id="location" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.location} onChange={handleChange} />
-              <TextField variant="outlined" margin="dense" id="location" label="Вставьте ссылку на изображение" color="primary" type="text" fullWidth value={formData.picture} onChange={handleChange} />
+              <TextField variant="outlined" margin="dense" id="picture" label="Вставьте ссылку на изображение" color="primary" type="text" fullWidth value={formData.picture} onChange={handleChange} />
               <TextField id="date" label="Выберите дату" type="datetime-local" value={formData.date} onChange={handleChange} InputLabelProps={{shrink: true,}}/>
             </DialogContent>
             <DialogActions>
