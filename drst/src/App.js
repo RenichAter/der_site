@@ -52,6 +52,7 @@ function App() {
   const [errorReg, setErrorReg] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [loginIn, setLoginIn] = useState(false);
+  const [serverError, setServerError] = useState(false);
   const [serverResponse, setServerResponse] = useState(null);
   const [userName, setUserName] = useState('');
   const [formData, setFormData] = useState({
@@ -76,10 +77,17 @@ function App() {
   });
 
   const getApiData = async () => {
+    try {
     const response = await fetch(
       "https://localhost:5000/api/Events"
     ).then((response) => response.json());
     setEvents(response);
+  }
+  catch(error) {
+    setServerError(true)
+    console.error('Ошибка при отправке запроса:', error);
+
+  }
   };
 
   useEffect(() => {
@@ -287,6 +295,7 @@ function App() {
           </Container>
         </Paper>
         <div align="center" className={classes.ButtonCreatePosition}>
+        {serverError ? (<Typography  variant="h6">Сервер не работает</Typography>) : (null)}
           {loginIn ? (<Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>Добавить мероприятие</Button>) : (
             <Typography  variant="h6">Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
           )}
