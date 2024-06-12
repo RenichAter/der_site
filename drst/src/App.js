@@ -63,9 +63,16 @@ const useStyles = makeStyles((theme) => ({
   cardPlaceTime: {
     display: 'flex', justifyContent: 'space-between',
   },
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 200,
+  },
 }));
-
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
 
@@ -74,12 +81,30 @@ function App() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [openReg, setOpenReg] = useState(false);
+  const [errorFill, setErrorFill] = useState(false);
+  const [errorAuth, setErrorAuth] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
+  const [loginIn, setLoginIn] = useState(false);
+  const [serverResponse, setServerResponse] = useState(null);
+  const [userName, setUserName] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     date: '',
     location: '',
+  });
+
+  const [formDataUser, setFormDataUser] = useState({
+    name: '',
+    userNick: '',
+    description: '',
+    email: '',
+    password: '',
+  });
+
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: '',
   });
 
   const getApiData = async () => {
@@ -108,6 +133,7 @@ function App() {
     setOpen(false);
     setOpenReg(false);
     setOpenAdd(false);
+    setErrorAuth(true)
   }
 
   const handleChange = (e) => {
@@ -118,15 +144,68 @@ function App() {
     }));
   }
 
+  const handleChangeLoginData = (e) => {
+    const { id, value } = e.target;
+    setLoginData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  }
+
+  const handleChangeUser = (e) => {
+    const { id, value } = e.target;
+    setFormDataUser((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  }
+
+  const handleClickLogin = async () => {
+    if (loginData.email.trim() === '' || loginData.password.trim() === '') {setErrorFill(true)}
+    else {
+      setErrorFill(false)
+    try {
+      const response = await axios.post('https://localhost:5000/api/Auth/login', loginData);
+      setServerResponse(response.data.token);
+      setUserName(response.data.nick);
+      setLoginIn(true);
+      handleClose();
+      } 
+    catch (error) {
+      setErrorFill(false)
+      setErrorAuth(true)
+      console.error('Ошибка при отправке запроса:', error);
+    }}
+  }
+
+  const handleRegisterUser = async (e) => {
+    e.preventDefault();
+    if (formDataUser.name.trim() === '' || formDataUser.description.trim() === '' || formDataUser.userNick.trim() === '' || formDataUser.email.trim() === '' || formDataUser.password.trim() === '') {setErrorFill(true)}
+    else {
+      setErrorFill(false)
+    try {
+      const response = await axios.post('https://localhost:5000/api/Users', formDataUser);
+      console.log('Server Response:', response.data);
+      setUserName(formDataUser.userNick);
+      setLoginIn(true);
+      handleClose();
+    } catch (error) {
+      console.error('Error submitting data:', error);
+    }}
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.name.trim() === '' || formData.description.trim() === '' || formData.date.trim() === '' || formData.location.trim() === '' ) {setErrorFill(true)}
+    else {
+      setErrorFill(false)
     try {
       const response = await axios.put('https://localhost:5000/api/Events', formData);
       console.log('Server Response:', response.data);
       handleClose();
     } catch (error) {
       console.error('Error submitting data:', error);
-    }
+    }}
   }
 
   return (
@@ -142,7 +221,7 @@ function App() {
               Фесфанд
             </Typography>
             <Box mr={3}>
-              <Button color="inherit" variant="outlined" className={classes.menuButton} onClick={handleClickOpen}>Войти</Button>
+            {loginIn ? ( <p>Добро пожаловатьь, {userName}!</p>) : (<Button color="inherit" variant="outlined" className={classes.menuButton} onClick={handleClickOpen}>Войти</Button>) }
               <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                   Войти
@@ -151,21 +230,23 @@ function App() {
                   <DialogContentText>
                     Войдите, чтобы создавать мероприятия
                   </DialogContentText>
-                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="email" fullWidth />
-                  <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth />
+                  {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
+                  {errorAuth ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы ввели неверный Логин или Пороль! </DialogContentText>) : ( null )}
+                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="email" fullWidth value={loginData.email} onChange={handleChangeLoginData} />
+                  <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth value={loginData.password} onChange={handleChangeLoginData}/>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleClose} className={classes.allColor}>
                     Отмена
                   </Button>
-                  <Button onClick={handleClose} className={classes.allColor}>
+                  <Button onClick={handleClickLogin} className={classes.allColor}>
                     Войти
                   </Button>
                 </DialogActions>
               </Dialog>
             </Box>
             <Box mr={3}>
-              <Button color="default" variant="contained" onClick={handleClickOpenReg}>Регистрация</Button>
+            {loginIn ? ( null ) : (<Button color="default" variant="contained" onClick={handleClickOpenReg}>Регистрация</Button>) }
               <Dialog open={openReg} onClose={handleClose} aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                   Регистрация
@@ -174,15 +255,18 @@ function App() {
                   <DialogContentText>
                     Зарегистрируйтесь, чтобы создавать мероприятия
                   </DialogContentText>
-                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="email" fullWidth />
-                  <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth />
-                  <TextField margin="dense" id="passwordConfirm" label="Повторите Пароль" type="password" fullWidth />
+                  {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
+                  <TextField autoFocus margin="dense" id="name" label="Ваше имя" type="text" fullWidth value={formDataUser.name} onChange={handleChangeUser}/>
+                  <TextField autoFocus margin="dense" id="userNick" label="Ваш ник на сайте" type="text" fullWidth value={formDataUser.userNick} onChange={handleChangeUser}/>
+                  <TextField multiline margin="dense" id="description" label="О вас" color="primary" type="text" fullWidth value={formDataUser.description} onChange={handleChangeUser} />
+                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="text" fullWidth value={formDataUser.email} onChange={handleChangeUser}/>
+                  <TextField margin="dense" id="password" label="Пароль" type="text" fullWidth value={formDataUser.password} onChange={handleChangeUser}/>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={handleClose} className={classes.allColor}>
                     Отмена
                   </Button>
-                  <Button onClick={handleClose} className={classes.allColor}>
+                  <Button onClick={handleRegisterUser} className={classes.allColor}>
                     Зарегистрироваться
                   </Button>
                 </DialogActions>
@@ -210,9 +294,10 @@ function App() {
           </Container>
         </Paper>
         <div align="center" className={classes.ButtonCreatePosition}>
+        {loginIn ? (
           <Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>
             Добавить мероприятие
-          </Button>
+          </Button> ) : (<Typography> Войдите иди зарегистрируйтесь, чтобы создавать мероприятия</Typography>)}
           <Dialog open={openAdd} onClose={handleClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">
               Создание мероприятия
@@ -221,10 +306,11 @@ function App() {
               <DialogContentText>
                 Введите все данные о вашем мероприятии
               </DialogContentText>
+              {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
               <TextField autoFocus variant="outlined" margin="dense" id="name" label="Введите название" color="primary" type="text" fullWidth value={formData.name} onChange={handleChange} />
               <TextField variant="outlined" multiline margin="dense" id="description" label="Введите описание" color="primary" type="text" fullWidth value={formData.description} onChange={handleChange} />
               <TextField variant="outlined" margin="dense" id="location" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.location} onChange={handleChange} />
-              <TextField variant="outlined" margin="dense" id="date" label="Введите дату в формате дд/мм/гггг" color="primary" type="text" fullWidth value={formData.date} onChange={handleChange} />
+              <TextField id="date" label="Выберите дату" type="datetime-local" value={formData.date} onChange={handleChange} InputLabelProps={{shrink: true,}}/>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose} className={classes.allColor}>
@@ -232,7 +318,7 @@ function App() {
               </Button>
               <Button onClick={handleSubmit} className={classes.allColor}>
                 Создать
-              </Button>
+              </Button> 
             </DialogActions>
           </Dialog>
         </div>
