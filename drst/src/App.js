@@ -92,6 +92,7 @@ function App() {
     description: '',
     date: '',
     location: '',
+    picture: '',
   });
 
   const [formDataUser, setFormDataUser] = useState({
@@ -196,10 +197,11 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name.trim() === '' || formData.description.trim() === '' || formData.date.trim() === '' || formData.location.trim() === '' ) {setErrorFill(true)}
+    if (formData.name.trim() === '' || formData.description.trim() === '' || formData.date.trim() === '' || formData.location.trim() === '') {setErrorFill(true)}
     else {
       setErrorFill(false)
     try {
+      if (formData.picture.trim() === '') {formData.picture = 'https://img2.fonwall.ru/o/as/oktyabr-v-caricyno-osen-caricyno-muzey-zapovednik-iikd.jpg?auto=compress&fit=resize&w=1200&display=large&nsfw=false'}
       const response = await axios.put('https://localhost:5000/api/Events', formData);
       console.log('Server Response:', response.data);
       handleClose();
@@ -310,6 +312,7 @@ function App() {
               <TextField autoFocus variant="outlined" margin="dense" id="name" label="Введите название" color="primary" type="text" fullWidth value={formData.name} onChange={handleChange} />
               <TextField variant="outlined" multiline margin="dense" id="description" label="Введите описание" color="primary" type="text" fullWidth value={formData.description} onChange={handleChange} />
               <TextField variant="outlined" margin="dense" id="location" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.location} onChange={handleChange} />
+              <TextField variant="outlined" margin="dense" id="location" label="Вставьте ссылку на изображение" color="primary" type="text" fullWidth value={formData.picture} onChange={handleChange} />
               <TextField id="date" label="Выберите дату" type="datetime-local" value={formData.date} onChange={handleChange} InputLabelProps={{shrink: true,}}/>
             </DialogContent>
             <DialogActions>
@@ -327,7 +330,7 @@ function App() {
             {events.map((card) => (
               <Grid item key={card} xs={12} sm={12} md={12}>
                 <Card className={classes.card}>
-                  <CardMedia className={classes.cardMedia} image="https://img2.fonwall.ru/o/as/oktyabr-v-caricyno-osen-caricyno-muzey-zapovednik-iikd.jpg?auto=compress&fit=resize&w=1200&display=large&nsfw=false" />
+                  <CardMedia className={classes.cardMedia} image={card.picture}/>
                   <CardContent className={classes.cardContent}>
                     <Typography variant="h4" gutterBottom>
                     {card.name}
