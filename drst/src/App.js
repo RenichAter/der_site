@@ -300,10 +300,9 @@ function App() {
           </Container>
         </Paper>
         <div align="center" className={classes.ButtonCreatePosition}>
-        {serverError ? (<Box><Typography  variant="h6" className={classes.errorServerStyle}>Сервер не отвечает, мы работаем над решением проблеммы</Typography><img src={'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fwww.meme-arsenal.com%2Fmemes%2Fd1759f51d39e6536dcb761622498d75a.jpg&sp=1718226118T6f248a737798adff5e979252e5b262b83d41121ba6cda82472dcc42e313e5385'} alt="" role="presentation" /></Box>) : (null)}
-          {loginIn ? (<Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>Добавить мероприятие</Button>) : (
+        {serverError ? (<Box><Typography  variant="h6" className={classes.errorServerStyle}>Сервер не отвечает, мы работаем над решением проблемы</Typography><img src={'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fwww.meme-arsenal.com%2Fmemes%2Fd1759f51d39e6536dcb761622498d75a.jpg&sp=1718226118T6f248a737798adff5e979252e5b262b83d41121ba6cda82472dcc42e313e5385'} alt="" role="presentation" /></Box>) : (loginIn ? (<Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>Добавить мероприятие</Button>) : (
             <Typography  variant="h6">Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
-          )}
+          ))}
           <Dialog open={openAdd} onClose={handleClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">Создание мероприятия</DialogTitle>
             <DialogContent>
