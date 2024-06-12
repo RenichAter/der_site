@@ -1,67 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
-import {
-  AppBar,
-  Container,
-  Toolbar,
-  Typography,
-  Box,
-  Paper,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-} from '@material-ui/core';
+import { AppBar, Container, Toolbar, Typography, Box, Paper, Grid, Card, CardMedia, CardContent, TextField,Dialog, DialogActions, DialogTitle, DialogContent,DialogContentText,} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  allColor: {
-    color: "#FF0A0A",
-  },
-  menuButton: {
-    marginRight: theme.spacing(1),
-  },
-  title: {
-    flexGrow: 1,
-  },
+  root: {flexGrow: 1,},
+  allColor: {color: "#FF0A0A",},
+  menuButton: {marginRight: theme.spacing(1),},
+  title: {flexGrow: 1,},
+  ButtonCreatePosition: {padding: theme.spacing(3),},
+  cardMedia: {paddingTop: "25%",},
+  cardPlaceTime: {display: 'flex', justifyContent: 'space-between',},
   mainFeaturesPost: {
     position: "relative",
     color: theme.palette.common.white,
     marginBottom: theme.spacing(1),
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-  },
+    backgroundPosition: "center",},
   mainFeaturesPostContent: {
     position: "relative",
     padding: theme.spacing(6),
     marginTop: theme.spacing(8),
-  },
-  ButtonCreatePosition: {
-    padding: theme.spacing(3),
   },
   CreateButton: {
     padding: theme.spacing(2),
     marginTop: theme.spacing(2),
     backgroundColor: "#FF0A0A",
     color: "white",
-  },
-  cardMedia: {
-    paddingTop: "25%",
-  },
-  cardPlaceTime: {
-    display: 'flex', justifyContent: 'space-between',
   },
   container: {
     display: 'flex',
@@ -81,6 +49,7 @@ function App() {
   const [openReg, setOpenReg] = useState(false);
   const [errorFill, setErrorFill] = useState(false);
   const [errorAuth, setErrorAuth] = useState(false);
+  const [errorReg, setErrorReg] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [loginIn, setLoginIn] = useState(false);
   const [serverResponse, setServerResponse] = useState(null);
@@ -147,6 +116,7 @@ function App() {
     setOpenReg(false);
     setOpenAdd(false);
     setErrorAuth(false);
+    setErrorReg(false);
   };
 
   const handleChange = (e) => {
@@ -188,7 +158,7 @@ function App() {
         localStorage.setItem('userName', response.data.nick);
         handleClose();
       } catch (error) {
-        setErrorAuth(true);
+        setErrorReg(true);
         console.error('Ошибка при отправке запроса:', error);
       }
     }
@@ -208,6 +178,7 @@ function App() {
         localStorage.setItem('userName', formDataUser.userNick);
         handleClose();
       } catch (error) {
+        setErrorFill(true);
         console.error('Error submitting data:', error);
       }
     }
@@ -257,7 +228,7 @@ function App() {
                     <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы не заполнили все поля!</DialogContentText>
                   ) : null}
                   {errorAuth ? (
-                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы ввели неверный Логин или Пароль!</DialogContentText>
+                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы ввели неверный Логин или Пароль! </DialogContentText>
                   ) : null}
                   <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="email" fullWidth value={loginData.email} onChange={handleChangeLoginData} />
                   <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth value={loginData.password} onChange={handleChangeLoginData} />
@@ -278,6 +249,9 @@ function App() {
                   <DialogContentText>Зарегистрируйтесь, чтобы создавать мероприятия</DialogContentText>
                   {errorFill ? (
                     <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы не заполнили все поля!</DialogContentText>
+                  ) : null}
+                  {errorReg ? (
+                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Аккаунт с такой почтой уже существует! </DialogContentText>
                   ) : null}
                   <TextField autoFocus margin="dense" id="name" label="Ваше имя" type="text" fullWidth value={formDataUser.name} onChange={handleChangeUser} />
                   <TextField autoFocus margin="dense" id="userNick" label="Ваш ник на сайте" type="text" fullWidth value={formDataUser.userNick} onChange={handleChangeUser} />
