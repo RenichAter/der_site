@@ -128,7 +128,10 @@ function App() {
     setOpen(true);
   };
   const handleClickExit = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
     setLoginIn(false);
+    setUserName('')
   };
 
   const handleClickOpenReg = () => {
@@ -169,6 +172,7 @@ function App() {
       [id]: value,
     }));
   };
+
 
   const handleClickLogin = async () => {
     if (loginData.email.trim() === '' || loginData.password.trim() === '') {
@@ -314,7 +318,7 @@ function App() {
               Добавить мероприятие
             </Button>
           ) : (
-            <Typography>Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
+            <Typography  variant="h6">Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
           )}
           <Dialog open={openAdd} onClose={handleClose} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">Создание мероприятия</DialogTitle>
