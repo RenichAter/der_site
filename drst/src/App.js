@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import {
   AppBar,
@@ -74,8 +74,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-
 function App() {
   const [events, setEvents] = useState([]);
   const classes = useStyles();
@@ -114,28 +112,39 @@ function App() {
     ).then((response) => response.json());
     setEvents(response);
   };
+
   useEffect(() => {
     getApiData();
+    const savedToken = localStorage.getItem('token');
+    const savedUserName = localStorage.getItem('userName');
+    if (savedToken && savedUserName) {
+      setServerResponse(savedToken);
+      setUserName(savedUserName);
+      setLoginIn(true);
+    }
   }, []);
 
   const handleClickOpen = () => {
     setOpen(true);
-  }
+  };
+  const handleClickExit = () => {
+    setLoginIn(false);
+  };
 
   const handleClickOpenReg = () => {
     setOpenReg(true);
-  }
+  };
 
   const handleClickOpenAdd = () => {
     setOpenAdd(true);
-  }
+  };
 
   const handleClose = () => {
     setOpen(false);
     setOpenReg(false);
     setOpenAdd(false);
-    setErrorAuth(true)
-  }
+    setErrorAuth(false);
+  };
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -143,7 +152,7 @@ function App() {
       ...prevData,
       [id]: value,
     }));
-  }
+  };
 
   const handleChangeLoginData = (e) => {
     const { id, value } = e.target;
@@ -151,7 +160,7 @@ function App() {
       ...prevData,
       [id]: value,
     }));
-  }
+  };
 
   const handleChangeUser = (e) => {
     const { id, value } = e.target;
@@ -159,60 +168,68 @@ function App() {
       ...prevData,
       [id]: value,
     }));
-  }
+  };
 
   const handleClickLogin = async () => {
-    if (loginData.email.trim() === '' || loginData.password.trim() === '') {setErrorFill(true)}
-    else {
-      setErrorFill(false)
-    try {
-      const response = await axios.post('https://localhost:5000/api/Auth/login', loginData);
-      setServerResponse(response.data.token);
-      setUserName(response.data.nick);
-      setLoginIn(true);
-      handleClose();
-      } 
-    catch (error) {
-      setErrorFill(false)
-      setErrorAuth(true)
-      console.error('Ошибка при отправке запроса:', error);
-    }}
-  }
+    if (loginData.email.trim() === '' || loginData.password.trim() === '') {
+      setErrorFill(true);
+    } else {
+      setErrorFill(false);
+      try {
+        const response = await axios.post('https://localhost:5000/api/Auth/login', loginData);
+        setServerResponse(response.data.token);
+        setUserName(response.data.nick);
+        setLoginIn(true);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userName', response.data.nick);
+        handleClose();
+      } catch (error) {
+        setErrorAuth(true);
+        console.error('Ошибка при отправке запроса:', error);
+      }
+    }
+  };
 
   const handleRegisterUser = async (e) => {
     e.preventDefault();
-    if (formDataUser.name.trim() === '' || formDataUser.description.trim() === '' || formDataUser.userNick.trim() === '' || formDataUser.email.trim() === '' || formDataUser.password.trim() === '') {setErrorFill(true)}
-    else {
-      setErrorFill(false)
-    try {
-      const response = await axios.post('https://localhost:5000/api/Users', formDataUser);
-      console.log('Server Response:', response.data);
-      setUserName(formDataUser.userNick);
-      setLoginIn(true);
-      handleClose();
-    } catch (error) {
-      console.error('Error submitting data:', error);
-    }}
-  }
+    if (formDataUser.name.trim() === '' || formDataUser.description.trim() === '' || formDataUser.userNick.trim() === '' || formDataUser.email.trim() === '' || formDataUser.password.trim() === '') {
+      setErrorFill(true);
+    } else {
+      setErrorFill(false);
+      try {
+        const response = await axios.post('https://localhost:5000/api/Users', formDataUser);
+        setUserName(formDataUser.userNick);
+        setLoginIn(true);
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('userName', formDataUser.userNick);
+        handleClose();
+      } catch (error) {
+        console.error('Error submitting data:', error);
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name.trim() === '' || formData.description.trim() === '' || formData.date.trim() === '' || formData.location.trim() === '') {setErrorFill(true)}
-    else {
-      setErrorFill(false)
-    try {
-      if (formData.picture.trim() === '') {formData.picture = 'https://img2.fonwall.ru/o/as/oktyabr-v-caricyno-osen-caricyno-muzey-zapovednik-iikd.jpg?auto=compress&fit=resize&w=1200&display=large&nsfw=false'}
-      const response = await axios.put('https://localhost:5000/api/Events', formData);
-      console.log('Server Response:', response.data);
-      handleClose();
-    } catch (error) {
-      console.error('Error submitting data:', error);
-    }}
-  }
+    if (formData.name.trim() === '' || formData.description.trim() === '' || formData.date.trim() === '' || formData.location.trim() === '') {
+      setErrorFill(true);
+    } else {
+      setErrorFill(false);
+      try {
+        if (formData.picture.trim() === '') {
+          formData.picture = 'https://img2.fonwall.ru/o/as/oktyabr-v-caricyno-osen-caricyno-muzey-zapovednik-iikd.jpg?auto=compress&fit=resize&w=1200&display=large&nsfw=false';
+        }
+        const response = await axios.put('https://localhost:5000/api/Events', formData);
+        console.log('Server Response:', response.data);
+        handleClose();
+      } catch (error) {
+        console.error('Error submitting data:', error);
+      }
+    }
+  };
 
   return (
     <>
-
       <AppBar position="fixed" style={{ backgroundColor: "#FF0A0A" }}>
         <Container fixed>
           <Toolbar>
@@ -223,54 +240,50 @@ function App() {
               Фесфанд
             </Typography>
             <Box mr={3}>
-            {loginIn ? ( <p>Добро пожаловатьь, {userName}!</p>) : (<Button color="inherit" variant="outlined" className={classes.menuButton} onClick={handleClickOpen}>Войти</Button>) }
+              {loginIn ? (
+                <Typography variant="h6" className={classes.menuButton}>Аккаунт: {userName} </Typography>
+              ) : (
+                <Button color="inherit" variant="outlined" className={classes.menuButton} onClick={handleClickOpen}>Войти</Button>
+              )}
               <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">
-                  Войти
-                </DialogTitle>
+                <DialogTitle id="form-dialog-title">Войти</DialogTitle>
                 <DialogContent>
-                  <DialogContentText>
-                    Войдите, чтобы создавать мероприятия
-                  </DialogContentText>
-                  {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
-                  {errorAuth ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы ввели неверный Логин или Пороль! </DialogContentText>) : ( null )}
+                  <DialogContentText>Войдите, чтобы создавать мероприятия</DialogContentText>
+                  {errorFill ? (
+                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы не заполнили все поля!</DialogContentText>
+                  ) : null}
+                  {errorAuth ? (
+                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы ввели неверный Логин или Пароль!</DialogContentText>
+                  ) : null}
                   <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="email" fullWidth value={loginData.email} onChange={handleChangeLoginData} />
-                  <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth value={loginData.password} onChange={handleChangeLoginData}/>
+                  <TextField margin="dense" id="password" label="Пароль" type="password" fullWidth value={loginData.password} onChange={handleChangeLoginData} />
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={handleClose} className={classes.allColor}>
-                    Отмена
-                  </Button>
-                  <Button onClick={handleClickLogin} className={classes.allColor}>
-                    Войти
-                  </Button>
+                  <Button onClick={handleClose} className={classes.allColor}>Отмена</Button>
+                  <Button onClick={handleClickLogin} className={classes.allColor}>Войти</Button>
                 </DialogActions>
               </Dialog>
             </Box>
             <Box mr={3}>
-            {loginIn ? ( null ) : (<Button color="default" variant="contained" onClick={handleClickOpenReg}>Регистрация</Button>) }
+              {loginIn ? (<Button color="inherit" variant="outlined" className={classes.menuButton} onClick={handleClickExit}>Выйти</Button>) : (
+                <Button color="default" variant="contained" onClick={handleClickOpenReg}>Регистрация</Button>
+              )}
               <Dialog open={openReg} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">
-                  Регистрация
-                </DialogTitle>
+                <DialogTitle id="form-dialog-title">Регистрация</DialogTitle>
                 <DialogContent>
-                  <DialogContentText>
-                    Зарегистрируйтесь, чтобы создавать мероприятия
-                  </DialogContentText>
-                  {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
-                  <TextField autoFocus margin="dense" id="name" label="Ваше имя" type="text" fullWidth value={formDataUser.name} onChange={handleChangeUser}/>
-                  <TextField autoFocus margin="dense" id="userNick" label="Ваш ник на сайте" type="text" fullWidth value={formDataUser.userNick} onChange={handleChangeUser}/>
+                  <DialogContentText>Зарегистрируйтесь, чтобы создавать мероприятия</DialogContentText>
+                  {errorFill ? (
+                    <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы не заполнили все поля!</DialogContentText>
+                  ) : null}
+                  <TextField autoFocus margin="dense" id="name" label="Ваше имя" type="text" fullWidth value={formDataUser.name} onChange={handleChangeUser} />
+                  <TextField autoFocus margin="dense" id="userNick" label="Ваш ник на сайте" type="text" fullWidth value={formDataUser.userNick} onChange={handleChangeUser} />
                   <TextField multiline margin="dense" id="description" label="О вас" color="primary" type="text" fullWidth value={formDataUser.description} onChange={handleChangeUser} />
-                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="text" fullWidth value={formDataUser.email} onChange={handleChangeUser}/>
-                  <TextField margin="dense" id="password" label="Пароль" type="text" fullWidth value={formDataUser.password} onChange={handleChangeUser}/>
+                  <TextField autoFocus margin="dense" id="email" label="Электронная Почта" type="text" fullWidth value={formDataUser.email} onChange={handleChangeUser} />
+                  <TextField margin="dense" id="password" label="Пароль" type="text" fullWidth value={formDataUser.password} onChange={handleChangeUser} />
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={handleClose} className={classes.allColor}>
-                    Отмена
-                  </Button>
-                  <Button onClick={handleRegisterUser} className={classes.allColor}>
-                    Зарегистрироваться
-                  </Button>
+                  <Button onClick={handleClose} className={classes.allColor}>Отмена</Button>
+                  <Button onClick={handleRegisterUser} className={classes.allColor}>Зарегистрироваться</Button>
                 </DialogActions>
               </Dialog>
             </Box>
@@ -296,32 +309,29 @@ function App() {
           </Container>
         </Paper>
         <div align="center" className={classes.ButtonCreatePosition}>
-        {loginIn ? (
-          <Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>
-            Добавить мероприятие
-          </Button> ) : (<Typography> Войдите иди зарегистрируйтесь, чтобы создавать мероприятия</Typography>)}
+          {loginIn ? (
+            <Button variant="outlined" className={classes.CreateButton} onClick={handleClickOpenAdd}>
+              Добавить мероприятие
+            </Button>
+          ) : (
+            <Typography>Войдите или зарегистрируйтесь, чтобы создавать мероприятия</Typography>
+          )}
           <Dialog open={openAdd} onClose={handleClose} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">
-              Создание мероприятия
-            </DialogTitle>
+            <DialogTitle id="form-dialog-title">Создание мероприятия</DialogTitle>
             <DialogContent>
-              <DialogContentText>
-                Введите все данные о вашем мероприятии
-              </DialogContentText>
-              {errorFill ? ( <DialogContentText variant="outlined" className={classes.allColor}> Ошибка! Вы не заполнили все поля! </DialogContentText>) : ( null )}
+              <DialogContentText>Введите все данные о вашем мероприятии</DialogContentText>
+              {errorFill ? (
+                <DialogContentText variant="outlined" className={classes.allColor}>Ошибка! Вы не заполнили все поля!</DialogContentText>
+              ) : null}
               <TextField autoFocus variant="outlined" margin="dense" id="name" label="Введите название" color="primary" type="text" fullWidth value={formData.name} onChange={handleChange} />
               <TextField variant="outlined" multiline margin="dense" id="description" label="Введите описание" color="primary" type="text" fullWidth value={formData.description} onChange={handleChange} />
               <TextField variant="outlined" margin="dense" id="location" label="Введите адрес места, где пройдёт мероприятие" color="primary" type="text" fullWidth value={formData.location} onChange={handleChange} />
               <TextField variant="outlined" margin="dense" id="picture" label="Вставьте ссылку на изображение" color="primary" type="text" fullWidth value={formData.picture} onChange={handleChange} />
-              <TextField id="date" label="Выберите дату" type="datetime-local" value={formData.date} onChange={handleChange} InputLabelProps={{shrink: true,}}/>
+              <TextField id="date" label="Выберите дату" type="datetime-local" value={formData.date} onChange={handleChange} InputLabelProps={{ shrink: true, }} />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose} className={classes.allColor}>
-                Отмена
-              </Button>
-              <Button onClick={handleSubmit} className={classes.allColor}>
-                Создать
-              </Button> 
+              <Button onClick={handleClose} className={classes.allColor}>Отмена</Button>
+              <Button onClick={handleSubmit} className={classes.allColor}>Создать</Button>
             </DialogActions>
           </Dialog>
         </div>
@@ -330,17 +340,13 @@ function App() {
             {events.map((card) => (
               <Grid item key={card} xs={12} sm={12} md={12}>
                 <Card className={classes.card}>
-                  <CardMedia className={classes.cardMedia} image={card.picture}/>
+                  <CardMedia className={classes.cardMedia} image={card.picture} />
                   <CardContent className={classes.cardContent}>
-                    <Typography variant="h4" gutterBottom>
-                    {card.name}
-                    </Typography>
-                    <Typography variant="h5" gutterBottom>
-                      {card.description}
-                    </Typography>
+                    <Typography variant="h4" gutterBottom>{card.name}</Typography>
+                    <Typography variant="h5" gutterBottom>{card.description}</Typography>
                     <div className={classes.cardPlaceTime}>
                       <Typography>{card.location}</Typography>
-                      <Typography>{card.date}</Typography>
+                      <Typography>{card.date.replace('T', ' ')}</Typography>
                     </div>
                   </CardContent>
                 </Card>
